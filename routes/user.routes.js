@@ -1,20 +1,25 @@
 const { Router } = require('express');
-
-const {userGet, userPost, userPut, userDelete } = require('../controllers/user.controller');
+const { esAdminRole, tieneRole  } = require('../middlewares/validar-roles');
+const { validarJWT } = require('../middlewares/validar-jwt');
+const { getUsers, getUser, postUser, putUser, deleteUser } = require('../controllers/user.controller.js');
 const router = Router();
 
 
-//Metodo get de express
-router.get('/', userGet);
+router.get('/get/', getUsers);
+router.get('/get/:id', getUser);
 
-//Metodo post de express
-router.post('/', userPost)
+router.post('/post/', postUser);
 
-//Metodo put de express
-//router.put('/', userPut)
-router.put('/:id', userPut)
+router.put('/put/:id', putUser);
 
-//Metodo delete de express
-router.delete('/', userDelete)
+router.delete('/delete/:id',[
+      validarJWT,
+      esAdminRole,
+      tieneRole('ADMIN_ROLE', 'USER_ROLE')
+
+], deleteUser);
+/*
+*/
+
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const db = require('../db/connection.js');
 
 /*
                                   _
@@ -26,21 +27,35 @@ const cors = require('cors');
 
 class Server {
 
+    
+
     constructor() {
         this.app = express();
         this.port = process.env.PORT;
 
+        // Conectar a base de datos
+        this.dbConnection();
+
         // Endpoints
         this.usersRoutePath = '/api/users';
-
-        //traigo 1 solo brawl
         this.brawlsRoutePath = '/api';
+        this.authPath = '/api/auth';
 
         // Middlewares - Funciones que añaden funcionalidades al webserver
         this.middlewares();
 
         // Rutas de mi aplicación
         this.routes();
+    }
+
+    async dbConnection() {
+        try {
+            await db.authenticate();
+            console.log('DB Online');
+        } catch (error) {
+            console.log("no conecto !!! error");
+            throw new Error('Error a la hora de iniciar la base de datos');
+        }
     }
 
 
@@ -63,8 +78,8 @@ class Server {
 
     routes() {
 
-        this.app.use(this.usersRoutePath, require('../routes/user.routes'));
-
+        this.app.use(this.authPath, require('../routes/auth.routes.js'));
+        this.app.use(this.usersRoutePath, require('../routes/user.routes.js'));
         this.app.use(this.brawlsRoutePath, require('../routes/brawls.routes.js'));
     }
 
